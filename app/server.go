@@ -24,9 +24,8 @@ func Start(lifecycle fx.Lifecycle, fiber *fiber.App, router *router.Router) {
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
 				router.Register()
-				port := "8080"
 				go func() {
-					if err := fiber.Listen(port); err != nil {
+					if err := fiber.Listen("0.0.0.0:8080"); err != nil {
 						//log.Error().Err(err).Msg("Something went wrong starting the server !")
 					}
 				}()
