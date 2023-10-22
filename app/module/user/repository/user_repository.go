@@ -7,4 +7,5 @@ type User struct {
 	Username  string    `json:"userName,omitempty"`
 	CreatedAt time.Time `json:"createdAt,omitempty"`
 	UpdatedAt time.Time `json:"updatedAt,omitempty""`
+	Password  string    `json:"password,omitempty"`
 }

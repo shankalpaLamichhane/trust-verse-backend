@@ -1,19 +1,20 @@
 package main
 
 import (
-	"go.uber.org/fx"
-	"trust-verse-backend/app"
-	"trust-verse-backend/app/module/user"
-	"trust-verse-backend/app/router"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"trust-verse-backend/app/routes"
 )
 
 func main() {
-	fx.New(
-		fx.Provide(app.NewConfig),
-		fx.Provide(app.NewApp),
-		fx.Provide(router.NewRouter),
-		user.NewUserModule,
-		fx.Invoke(app.Start),
-		//fx.WithLogger(fxzerolog.Init()),
-	).Run()
+	app := fiber.New()
+	app.Use(cors.New(cors.Config{
+		AllowCredentials: true,
+		AllowOrigins:     "*",
+	}))
+	routes.Setup(app)
+	err := app.Listen(":8080")
+	if err != nil {
+		return
+	}
 }

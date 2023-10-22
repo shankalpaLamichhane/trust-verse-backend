@@ -2,12 +2,14 @@ package router
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"trust-verse-backend/app/module/auth"
 	"trust-verse-backend/app/module/user"
 )
 
 type Router struct {
 	App        fiber.Router
 	UserRouter *user.UserRouter
+	AuthRouter *auth.AuthRouter
 }
 
 func NewRouter(fiber *fiber.App, userRouter *user.UserRouter) *Router {
@@ -22,4 +24,5 @@ func (r *Router) Register() {
 		return c.SendString("Hello World 👋")
 	})
 	r.UserRouter.RegisterUserRoutes()
+	r.AuthRouter.RegisterAuthRoutes()
 }
