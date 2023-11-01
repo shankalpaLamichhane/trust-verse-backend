@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/gofiber/fiber/v2 v2.34.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/rs/zerolog v1.27.0
 	go.uber.org/fx v1.20.0
 )

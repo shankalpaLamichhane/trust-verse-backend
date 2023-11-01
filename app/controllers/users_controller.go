@@ -1,12 +1,9 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
-	"strconv"
 	"time"
-	"trust-verse-backend/app/dto"
 	"trust-verse-backend/app/utils"
 )
 
@@ -16,26 +13,29 @@ func GetUser(ctx *fiber.Ctx) error {
 }
 
 func AuthenticateUser() utils.Response {
-	claims := dto.Claims{
-		Issuer:         strconv.Itoa(1),
-		StandardClaims: jwt.StandardClaims{ExpiresAt: time.Now().Add(time.Hour * 24).Unix()},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
-	fmt.Print("token is ", token)
-	signedString, err := token.SignedString([]byte("l6xTbagpRDzvB4z5p9j4Nz8VWOGF6rG3JowU8yKsD3Y="))
-	fmt.Println("signed string is ", signedString)
+	//claims := dto.Claims{
+	//	Issuer:         strconv.Itoa(1),
+	//	StandardClaims: jwt.StandardClaims{ExpiresAt: time.Now().Add(time.Hour * 24).Unix()},
+	//}
+
+	const jwtSecret = "asecret"
+
+	token := jwt.New(jwt.SigningMethodHS256)
+	claims := token.Claims.(jwt.MapClaims)
+	claims["sub"] = "1"
+	claims["exp"] = time.Now().Add(time.Hour * 24 * 7)
+	s, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {
-		fmt.Print("the err is ", err)
-		data := map[string]string{"access_token": "foo_token"}
 		return utils.Response{
-			Code:     fiber.StatusOK,
+			Code:     fiber.StatusInternalServerError,
 			Messages: utils.Messages{"Could not generate token"},
-			Data:     data,
+			Data:     "data",
 		}
 	}
 	return utils.Response{
 		Code:     fiber.StatusOK,
 		Messages: utils.Messages{"Authentication successful"},
-		Data:     signedString,
+		Data:     s,
 	}
+
 }
