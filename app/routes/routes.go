@@ -11,6 +11,7 @@ func Setup(app *fiber.App) {
 	v1 := api.Group("/v1")
 	users := v1.Group("users")
 	users.Get("/", controllers.GetUser)
+	users.Post("/", controllers.CreateUser)
 	auth := v1.Group("auths")
 	auth.Post("/login", controllers.Login)
 
