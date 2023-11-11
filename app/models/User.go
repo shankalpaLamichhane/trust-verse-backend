@@ -13,10 +13,17 @@ var UserCollection *mongo.Collection
 
 // User | @desc: user model struct
 type User struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	Name     string             `bson:"name,omitempty"`
-	Email    string             `bson:"email,omitempty"`
-	Password string             `bson:"password,omitempty"`
+	ID          primitive.ObjectID `bson:"_id,omitempty"`
+	Name        string             `bson:"name,omitempty"`
+	Username    string             `bson:"username,omitempty"`
+	Phone       string             `bson:"phone,omitempty"`
+	Email       string             `bson:"email,omitempty"`
+	Password    string             `bson:"password,omitempty"`
+	UserProfile UserProfile        `bson:"userProfile"`
+}
+
+type UserProfile struct {
+	ProfileImage string `bson:"profileImage,omitempty"`
 }
 
 type LoginRequest struct {
