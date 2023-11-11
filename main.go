@@ -23,8 +23,9 @@ func main() {
 	defer database.Client.Disconnect(database.Ctx)
 
 	models.CreateUserSchema()
-	
+
 	err := app.Listen(":8080")
+
 	if err != nil {
 		return
 	}

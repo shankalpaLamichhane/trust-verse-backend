@@ -1,46 +1,66 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
-	"time"
+	"trust-verse-backend/app/dto"
+	"trust-verse-backend/app/middlewares"
 	"trust-verse-backend/app/models"
 	"trust-verse-backend/app/utils"
 )
 
-func GetUser(ctx *fiber.Ctx) error {
-	data := map[string]string{"foo": "foo", "bar": "bar"}
-	return ctx.JSON(data)
+func FetchUsr(c *fiber.Ctx) error {
+	user := GetUser(c)
+	return c.JSON(user)
 }
 
-func AuthenticateUser(ctx *fiber.Ctx) utils.Response {
-	//claims := dto.Claims{
-	//	Issuer:         strconv.Itoa(1),
-	//	StandardClaims: jwt.StandardClaims{ExpiresAt: time.Now().Add(time.Hour * 24).Unix()},
-	//}
+/*
+GetUser | @Desc: Get user by id |
+@Method: GET |
+@Route: "api/v1/users/:id" |
+@Auth: Public
+*/
+// todo : move this to service and refine the whole architecture of the app.
+func GetUser(c *fiber.Ctx) utils.Response {
 
-	const jwtSecret = "asecret"
-
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["sub"] = "1"
-	claims["exp"] = time.Now().Add(time.Hour * 24 * 7)
-	s, err := token.SignedString([]byte(jwtSecret))
+	username, err := middlewares.ExtractUsernameFromToken(c.Get("Authorization"))
 	if err != nil {
 		return utils.Response{
-			Code:     fiber.StatusInternalServerError,
-			Messages: utils.Messages{"Could not generate token"},
-			Data:     "data",
+			Code:     fiber.StatusBadRequest,
+			Messages: utils.Messages{err.Error()},
+			Data:     nil,
 		}
 	}
+	filer := bson.D{{Key: "username", Value: username}}
+	userRecord := models.UserCollection.FindOne(c.Context(), filer)
+	if userRecord.Err() != nil {
+		return utils.Response{
+			Code:     fiber.StatusBadRequest,
+			Messages: utils.Messages{userRecord.Err()},
+			Data:     nil,
+		}
+	}
+	user := &dto.UserDto{}
+	userRecord.Decode(user)
+
 	return utils.Response{
 		Code:     fiber.StatusOK,
-		Messages: utils.Messages{"Authentication successful"},
-		Data:     s,
+		Messages: utils.Messages{"User fetch successful"},
+		Data:     user,
 	}
+}
 
+func GetUserByUserName(ctx *fiber.Ctx, username string) (*models.User, error) {
+	filer := bson.D{{Key: "username", Value: username}}
+	userRecord := models.UserCollection.FindOne(ctx.Context(), filer)
+	if userRecord.Err() != nil {
+		return &models.User{}, userRecord.Err()
+	}
+	user := &models.User{}
+	userRecord.Decode(user)
+	return user, nil
 }
 
 /*
@@ -56,6 +76,7 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 
 	password := []byte(user.Password)
+	// todo : refactor and extract this.
 	hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 	if err != nil {
 		panic(err)
@@ -76,4 +97,45 @@ func CreateUser(c *fiber.Ctx) error {
 	createdRecord.Decode(createdUser)
 
 	return c.JSON(fiber.Map{"success": true, "data": createdUser})
+}
+
+/*
+UpdateUser | @Desc: Update existing user |
+@Method: PUT |
+@Route: "api/v1/users/:id" |
+@Auth: Private
+*/
+func UpdateUserProfile(c *fiber.Ctx) error {
+	username, err := middlewares.ExtractUsernameFromToken(c.Get("Authorization"))
+	if err != nil {
+		fmt.Println("NEW ERRRRRRRRRR")
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": err})
+	}
+	filer := bson.D{{Key: "username", Value: username}}
+	fmt.Println("USER NAME IS ", username)
+	fmt.Println("-----")
+
+	userRecord := models.UserCollection.FindOne(c.Context(), filer)
+
+	if userRecord.Err() != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": userRecord.Err()})
+	}
+
+	user := new(models.User)
+	fmt.Println("11")
+	if err := c.BodyParser(user); err != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": err})
+	}
+	// Find the employee and update its data
+	query := bson.D{{Key: "username", Value: username}}
+
+	update := bson.D{{"$set", bson.D{{"userProfile", user.UserProfile}}}}
+
+	fmt.Println("22")
+	err = models.UserCollection.FindOneAndUpdate(c.Context(), query, update).Err()
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": err})
+	}
+
+	return c.JSON(fiber.Map{"success": true, "data": "User updated successfully."})
 }
