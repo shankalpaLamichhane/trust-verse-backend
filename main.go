@@ -23,6 +23,7 @@ func main() {
 	defer database.Client.Disconnect(database.Ctx)
 
 	models.CreateUserSchema()
+	models.CreatePostSchema()
 
 	err := app.Listen(":8080")
 

@@ -17,4 +17,8 @@ func Setup(app *fiber.App) {
 	auth := v1.Group("auths")
 	auth.Post("/login", controllers.Login)
 
+	posts := v1.Group("posts")
+	posts.Post("/", middlewares.AuthRequired(), controllers.CreatePost)
+	posts.Get("/", middlewares.AuthRequired(), controllers.GetPosts)
+
 }
