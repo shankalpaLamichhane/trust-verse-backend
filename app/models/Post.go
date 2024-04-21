@@ -15,11 +15,31 @@ var PostCollection *mongo.Collection
 // User | @desc: user model struct
 type Post struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	User      User               `bson:"user,omitempty"`
+	User      *User              `bson:"user,omitempty"`
 	Content   string             `bson:"content,omitempty"`
 	Image     string             `bson:"image,omitempty"`
+	Comments  []Comment          `bson:"comments,omitempty"`
 	CreatedAt time.Time          `bson:"createdAt,omitempty"`
 	UpdatedAt time.Time          `bson:"updatedAt,omitempty"`
+	Type      string             `bson:"type,omitempty"`
+}
+
+type PostWithModel struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty"`
+	User      *User              `bson:"user,omitempty"`
+	Content   string             `bson:"content,omitempty"`
+	Image     string             `bson:"image,omitempty"`
+	Comments  []Comment          `bson:"comments,omitempty"`
+	CreatedAt time.Time          `bson:"createdAt,omitempty"`
+	UpdatedAt time.Time          `bson:"updatedAt,omitempty"`
+	Type      string             `bson:"type,omitempty"`
+	Model     TrustVerseModel    `bson:"model,omitempty"`
+}
+
+type Comment struct {
+	UserName  string    `bson:"username,omitempty"`
+	Text      string    `bson:"text,omitempty"`
+	CreatedAt time.Time `bson:"createdAt,omitempty"`
 }
 
 // CreatePostSchema | @desc: adds schema validation and indexes to collection

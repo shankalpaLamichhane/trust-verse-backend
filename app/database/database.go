@@ -21,7 +21,7 @@ func Connect() {
 	var err error
 
 	Ctx, Cancel = context.WithTimeout(context.Background(), 30*time.Second)
-	fmt.Print("THE DATABSE URL IS " + os.Getenv("MONGO_URI"))
+	fmt.Print("THE DATABSE URL IS " + os.Getenv("/"))
 	Client, err = mongo.Connect(Ctx, options.Client().ApplyURI(os.Getenv("MONGO_URI")))
 	if err != nil {
 		panic(err)

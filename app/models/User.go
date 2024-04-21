@@ -20,6 +20,13 @@ type User struct {
 	Email       string             `bson:"email,omitempty"`
 	Password    string             `bson:"password,omitempty"`
 	UserProfile UserProfile        `bson:"userProfile"`
+	FollowedBy  []string           `bson:"followedBy, omitempty"`
+	Role        string             `bson:"role, omitempty"`
+}
+
+type UserWithSentiment struct {
+	*User
+	AverageNegSentimentScore float64 `json:"averageNegSentimentScore"`
 }
 
 type UserProfile struct {

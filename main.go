@@ -9,6 +9,8 @@ import (
 	"trust-verse-backend/app/routes"
 )
 
+//; git-token=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
+
 func main() {
 	godotenv.Load(".env")
 
@@ -24,6 +26,7 @@ func main() {
 
 	models.CreateUserSchema()
 	models.CreatePostSchema()
+	models.CreateTrustVerseModelSchema()
 
 	err := app.Listen(":8080")
 
